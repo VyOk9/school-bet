@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --color-brand: #0ea5e9;
+}
+
+/* Adding custom gradient for school card */
+.gradient-card {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #c44569 75%, #a855f7 100%);
+}

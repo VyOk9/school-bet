@@ -1,0 +1,1 @@
+{"root":["./.nuxt/nuxt.d.ts","./app.vue","./nuxt.config.ts","./components/lyceepicker.vue","./pages/fiche-avenir.vue","./pages/index.vue","./pages/resultat.vue","./server/api/fiche-avenir.post.ts","./server/api/prefill.get.ts","./types/form.ts","./utils/random.ts","./.nuxt/nuxt.node.d.ts"],"errors":true,"version":"5.9.3"}
