@@ -2,7 +2,8 @@
 import type { PrefillPayload, Classe, Lycee } from '~/types/form'
 import { ref, computed, onMounted } from 'vue'
 import { useFetch, navigateTo } from '#app'
-import { CLASSES, BAC_TYPES, SPECIALITES } from '~/constants/data'
+import { CLASSES, BAC_TYPES, SPECIALITES, LYCEES } from '~/constants/data'
+import { randomItem } from '~/utils/random'
 import LyceePicker from '~/components/LyceePicker.vue'
 
 const FORM_STORAGE_KEY = 'edumapper_form_data'
@@ -21,24 +22,26 @@ const specialitesExpanded = ref(false)
 const { data: prefillData } = useFetch<PrefillPayload>('/api/prefill')
 
 onMounted(() => {
+  try {
+    lycee.value = randomItem(LYCEES as readonly Lycee[])
+  } catch {
+    lycee.value = 'Etienne Dolet'
+  }
+
   const savedData = sessionStorage.getItem(FORM_STORAGE_KEY)
-  
   if (savedData) {
     try {
       const parsed = JSON.parse(savedData)
-      lycee.value = parsed.lycee || 'Etienne Dolet'
       ville.value = parsed.ville || 'Lille'
       typeLycee.value = parsed.typeLycee || 'Lycée Public'
       selectedClasse.value = parsed.selectedClasse || null
       selectedBacType.value = parsed.selectedBacType || null
+      return
     } catch {
-      lycee.value = prefillData.value?.lycee ?? 'Etienne Dolet'
-      selectedClasse.value = prefillData.value?.classe ?? null
     }
-  } else {
-    lycee.value = prefillData.value?.lycee ?? 'Etienne Dolet'
-    selectedClasse.value = prefillData.value?.classe ?? null
   }
+
+  selectedClasse.value = prefillData.value?.classe ?? null
 })
 
 function openPicker() {

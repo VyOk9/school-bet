@@ -1,5 +1,3 @@
-// Centralized data constants - single source of truth
-
 export const LYCEES = [
   "Etienne Dolet",
   "Lycée privé Charles de Foucauld",

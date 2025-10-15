@@ -27,8 +27,22 @@ const formation = ref<Formation>({
   reliability: 4,
 })
 
+function safeParse<T>(raw: string | null): T | null {
+  if (!raw) return null
+  try { return JSON.parse(raw) as T } catch { return null }
+}
+
+function isValidFormation(obj: any): obj is Formation {
+  return obj
+    && typeof obj.school === 'string'
+    && typeof obj.location === 'string'
+    && typeof obj.program === 'string'
+    && typeof obj.admissionChance === 'number'
+    && typeof obj.reliability === 'number'
+}
+
 function generateRandomResults() {
-  const selectedSchool = randomItem(SCHOOLS)
+  const selectedSchool = randomItem(SCHOOLS as readonly School[])
   const admissionChance = Math.floor(Math.random() * 70) + 20
   const reliability = Math.floor(Math.random() * 3) + 3
 
@@ -40,30 +54,23 @@ function generateRandomResults() {
 }
 
 onMounted(() => {
-  const formData = sessionStorage.getItem(FORM_STORAGE_KEY)
-  if (formData) {
-    try {
-      const parsed = JSON.parse(formData)
-      lycee.value = parsed.lycee || 'Etienne Dolet'
-      ville.value = parsed.ville || 'Lille'
-      typeLycee.value = parsed.typeLycee || 'Lycée Public'
-    } catch {
-      lycee.value = 'Etienne Dolet'
-    }
+  const formParsed = safeParse<{
+    lycee?: Lycee
+    ville?: string
+    typeLycee?: string
+  }>(sessionStorage.getItem(FORM_STORAGE_KEY))
+
+  if (formParsed) {
+    lycee.value = formParsed.lycee ?? 'Etienne Dolet'
+    ville.value = formParsed.ville ?? 'Lille'
+    typeLycee.value = formParsed.typeLycee ?? 'Lycée Public'
   } else {
     lycee.value = 'Etienne Dolet'
   }
 
-  // Load or generate results
-  const savedResults = sessionStorage.getItem(STORAGE_KEY)
-  
-  if (savedResults) {
-    try {
-      formation.value = JSON.parse(savedResults)
-    } catch {
-      generateRandomResults()
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(formation.value))
-    }
+  const saved = safeParse<Formation>(sessionStorage.getItem(STORAGE_KEY))
+  if (isValidFormation(saved)) {
+    formation.value = saved
   } else {
     generateRandomResults()
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(formation.value))
@@ -103,7 +110,7 @@ function testAnother() {
       <div class="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
         <div class="flex flex-col items-center">
           <div class="relative w-40 h-40 mb-6">
-            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 160 160" aria-hidden="true">
               <circle cx="80" cy="80" r="70" fill="none" stroke="#f3f4f6" stroke-width="12" />
               <circle
                 cx="80"
@@ -127,7 +134,7 @@ function testAnother() {
             </svg>
 
             <div class="absolute inset-0 flex items-center justify-center">
-              <svg class="w-12 h-12 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="w-12 h-12 text-orange-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                 <path
                   fill-rule="evenodd"
                   d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
@@ -143,7 +150,7 @@ function testAnother() {
               <span class="text-lg text-gray-600">• {{ chanceLevel }}</span>
             </div>
 
-            <div class="flex items-center justify-center gap-1">
+            <div class="flex items-center justify-center gap-1" aria-label="Fiabilité">
               <span class="text-sm text-gray-600 mr-1">Fiabilité</span>
               <div class="flex gap-0.5">
                 <svg
@@ -153,6 +160,7 @@ function testAnother() {
                   :class="i <= formation.reliability ? 'text-gray-900' : 'text-gray-300'"
                   fill="currentColor"
                   viewBox="0 0 20 20"
+                  aria-hidden="true"
                 >
                   <path
                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
